@@ -1,0 +1,28 @@
+{
+  "manifest_version": 3,
+  "name": "Drainfeed",
+  "version": "1.0",
+  "description": "A lista de espera que realmente anda.",
+  "action": {},
+  "background": {
+    "scripts": ["background.js"]
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://*.youtube.com/watch*"],
+      "css": ["content.css"],
+      "js": ["content.js"],
+      "run_at": "document_end",
+      "all_frames": false
+    }
+  ],
+  "host_permissions": [
+    "http://localhost:3000/*"
+  ],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "drainfeed@projeto.com",
+      "strict_min_version": "109.0"
+    }
+  }
+}

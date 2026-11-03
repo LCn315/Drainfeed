@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Drainfeed</title>
+    <style>
+        :root {
+            --bg-deep: #050505;
+            --bg-card: #111111;
+            --border: #2A2A2A;
+            --text-main: #FFFFFF;
+            --text-dim: #777777;
+            --theme-color: #9D00FF;
+            --neon-red: #FF0055;
+            font-family: 'Space Grotesk', 'Inter', monospace;
+        }
+        body { background-color: var(--bg-deep); color: var(--text-main); margin: 0; padding: 40px; }
+        
+        .header {
+            display: flex; justify-content: space-between; align-items: flex-end;
+            border-bottom: 2px solid var(--border); padding-bottom: 20px; margin-bottom: 40px;
+        }
+        
+        .header-title h1 { font-size: 32px; margin: 0; text-transform: uppercase; letter-spacing: -1px; }
+        
+        .user-stats { margin-top: 8px; font-size: 13px; color: var(--text-dim); letter-spacing: 1px; }
+        .highlight { color: var(--theme-color); font-weight: bold; font-size: 16px; margin-right: 12px; }
+        
+        /* Meta Diária */
+        .daily-goal { margin-top: 12px; font-size: 12px; color: var(--text-dim); }
+        .goal-blocks { display: inline-flex; gap: 4px; margin-left: 8px; }
+        .goal-block { width: 12px; height: 12px; border: 1px solid var(--border); }
+        .goal-block.filled { background-color: var(--theme-color); border-color: var(--theme-color); box-shadow: 0 0 5px var(--theme-color); }
+
+        .stats { color: var(--text-dim); font-size: 12px; font-weight: bold; letter-spacing: 1px; text-align: right; }
+        .stats span { color: var(--theme-color); font-size: 16px; }
+        
+        .header-actions { margin-top: 10px; }
+        .btn-shop {
+            background: transparent; border: 1px solid var(--theme-color); color: var(--theme-color);
+            padding: 8px 12px; cursor: pointer; font-family: inherit; font-size: 11px; text-transform: uppercase;
+        }
+        .btn-shop:hover { background: var(--theme-color); color: var(--bg-deep); }
+
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px; }
+        
+        .card {
+            background: var(--bg-card); display: flex; flex-direction: column; 
+            transition: all 0.2s cubic-bezier(0.4, 0, 1, 1); position: relative; overflow: hidden;
+        }
+        
+        .card.timeless { border: 1px solid var(--border); }
+        .card.perishable { border: 1px dashed var(--text-dim); }
+        
+        .card.timeless:hover, .card.timeless.active-focus {
+            border-color: var(--theme-color); box-shadow: 0 0 10px var(--theme-color); transform: translateY(-4px);
+        }
+        
+        .card.perishable:hover, .card.perishable.active-focus {
+            border-color: var(--neon-red); box-shadow: 0 0 15px rgba(255, 0, 85, 0.15); transform: translateY(-4px);
+        }
+
+        .thumb {
+            height: 160px; background-size: cover; background-position: center;
+            border-bottom: 1px solid var(--border); filter: grayscale(100%) contrast(1.2); transition: 0.3s;
+        }
+        .card:hover .thumb, .card.active-focus .thumb { filter: grayscale(0%); }
+        .info { padding: 16px; flex-grow: 1; }
+        
+        .card-header-tags {
+            display: flex; justify-content: space-between; font-size: 10px; text-transform: uppercase;
+            font-family: monospace; letter-spacing: 1px; margin-bottom: 8px;
+        }
+        .dir-tag { color: var(--text-dim); }
+        .dir-tag span { color: var(--theme-color); }
+        .life-status { font-weight: bold; }
+        .life-status.perishable { color: var(--neon-red); animation: alert-pulse 2s infinite; }
+        .life-status.timeless { color: var(--text-dim); }
+        
+        @keyframes alert-pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+
+        .info h3 { margin: 0 0 8px 0; font-size: 14px; line-height: 1.4; }
+        .actions { display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid var(--border); }
+        .btn {
+            background: transparent; border: none; color: var(--text-dim); padding: 12px; font-weight: bold;
+            font-family: inherit; cursor: pointer; text-transform: uppercase; font-size: 12px;
+            transition: 0.15s; border-right: 1px solid var(--border);
+        }
+        .btn:last-child { border-right: none; }
+        .btn-drain:hover { background: var(--theme-color); color: var(--bg-deep); }
+        .btn-erase:hover { background: var(--neon-red); color: white; }
+        .card.processing { opacity: 0; transform: scale(0.95); pointer-events: none; }
+        
+        @keyframes pop { 0% { transform: scale(1); } 50% { transform: scale(1.3); color: #FFF; } 100% { transform: scale(1); } }
+        .token-pop { animation: pop 0.3s ease-out; }
+        
+        .shop-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(5, 5, 5, 0.95);
+            display: none; align-items: center; justify-content: center; z-index: 9999;
+        }
+        .shop-content {
+            background: var(--bg-card); border: 1px solid var(--theme-color); padding: 30px; width: 80%; max-width: 600px;
+        }
+        .shop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+        .shop-card { border: 1px solid var(--border); padding: 15px; text-align: center; }
+        .shop-card h3 { margin: 0 0 10px 0; font-size: 14px; color: var(--text-main); }
+        
+        /* Painel Dev */
+        .dev-panel {
+            margin-top: 60px; padding: 20px; border: 1px dashed var(--neon-red);
+            background: #1a0505; color: var(--text-dim); font-size: 12px;
+        }
+        .dev-panel h3 { color: var(--neon-red); margin: 0 0 12px 0; text-transform: uppercase; }
+        .dev-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+        .btn-dev {
+            background: transparent; border: 1px solid var(--neon-red); color: var(--text-main);
+            padding: 8px 12px; cursor: pointer; font-family: inherit; font-size: 11px; text-transform: uppercase;
+        }
+        .btn-dev:hover { background: var(--neon-red); color: #fff; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-title">
+            <h1>[ Tanque de Atenção ]</h1>
+            <div class="user-stats">
+                TOKENS: <span id="token-balance" class="highlight">0</span>
+                OFENSIVA: <span id="streak" class="highlight">0</span>
+            </div>
+            <div class="daily-goal">
+                META DIÁRIA: 
+                <div class="goal-blocks" id="goal-tracker"></div>
+            </div>
+        </div>
+        <div class="stats">
+            CAPACIDADE: <span id="count">0</span> / 50 <br>
+            <div class="header-actions">
+                <button class="btn-shop" id="open-shop-btn">[ Loja de Temas ]</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="grid" id="video-grid"></div>
+    
+    <div class="dev-panel">
+        <h3>[ Para demonstração ]</h3>
+        <div class="dev-actions">
+            <button class="btn-dev" id="dev-add-tokens">+ 5000 Tokens</button>
+            <button class="btn-dev" id="dev-reset-tokens">- Zerar Tokens</button>
+            <button class="btn-dev" id="dev-add-streak">+ Subir Ofensiva</button>
+            <button class="btn-dev" id="dev-break-streak">- Quebrar Ofensiva</button>
+        </div>
+    </div>
+
+    <div id="shop-modal" class="shop-overlay">
+        <div class="shop-content">
+            <h2>[ Loja de Temas ]</h2>
+            <p style="font-size: 12px; color: var(--text-dim);">Gaste seus Tokens</p>
+            <div id="shop-items-grid" class="shop-grid"></div>
+            <button class="btn btn-erase" id="close-shop-btn" style="margin-top: 20px; width: 100%; border: 1px solid var(--border);">Fechar Aba</button>
+        </div>
+    </div>
+    
+    <script src="dashboard.js"></script>
+</body>
+</html>
