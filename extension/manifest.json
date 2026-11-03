@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "Drainfeed",
+  "version": "1.0",
+  "description": "O anti-algoritmo. Injetor de vídeos atemporais e perecíveis.",
+  "action": {},
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://*.youtube.com/watch*"],
+      "css": ["content.css"],
+      "js": ["content.js"],
+      "run_at": "document_end",
+      "all_frames": false
+    }
+  ],
+  "host_permissions": [
+    "http://localhost:3000/*"
+  ]
+}
