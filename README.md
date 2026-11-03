@@ -7,7 +7,7 @@
 1. **Navegador:**
    - Escolha um navegador para utilizar a extensão
    - Caso ele seja baseado no chrome, então estará pronto para seguir
-   - Caso seja baseado em firefox, renomeie do arquivo manifestfirefox.json para manifest.json e o manifest.json original para qualquer outra coisa
+   - Caso seja baseado em firefox, renomeie `manifestfirefox.json` para `manifest.json` e o `manifest.json` original para qualquer outra coisa
 
 2. **Backend:**
    - Entre na pasta `api` no seu terminal.
