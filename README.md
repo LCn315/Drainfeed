@@ -15,7 +15,5 @@
    - Rode `node server.js`
    
 3. **Instale a Extensão:**
-   - Acesse as Extensões do seu navegador (Modo Desenvolvedor).
-   - Carregue a pasta `extension` 
    - No Firefox, carregue o `manifest.json` via about:debugging.
    - No Chrome, entre na aba de extensões e ative o modo desenvolvedor, carregue a extensão sem compactar e selecione a pasta onde o manifest.json está
